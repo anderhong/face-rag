@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Model Files（太大，唔上傳）
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Hugging Face Cache
+.cache/
+huggingface/
+
+# 個人設定
+.vscode/
+.idea/
+*.log
+
+# 環境變數
+.env

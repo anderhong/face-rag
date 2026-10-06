@@ -1,0 +1,22 @@
+[project]
+name = "face-rag"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "facenet-pytorch>=2.5.3",
+    "fastapi>=0.142.2",
+    "pillow>=12.3.0",
+    "python-multipart>=0.0.32",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+face-rag = "face_rag:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
