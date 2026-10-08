@@ -6,20 +6,20 @@ import torch
 import os
 import io
 
-# ============ 1. 建立 FastAPI App ============
+# ============ 1. Create the FastAPI application ============
 app = FastAPI(
     title="Face RAG API",
     description="Face Search in Group Photos using FaceNet",
     version="1.0.0"
 )
 
-# ============ 2. 載入 Models ============
+# ============ 2. Load models ============
 print("Loading Face Detection & Recognition models...")
 mtcnn = MTCNN(keep_all=True, device="cpu")
 face_model = InceptionResnetV1(pretrained="vggface2").eval()
 print("Models loaded")
 
-# 載入 Face Embeddings
+# Load face embeddings.
 if not os.path.exists("face_embeddings.pt"):
     raise RuntimeError("face_embeddings.pt not found. Run build_face_index.py first.")
 
@@ -33,7 +33,7 @@ print(f"Loaded {len(db_embeddings)} face embeddings from {len(set(db_paths))} un
 
 # ============ 3. Helper Functions ============
 def embed_faces(image: Image.Image):
-    """Detect + Crop + Embed 所有人臉"""
+    """Detect, crop, and embed all faces."""
     faces = mtcnn(image)
     if faces is None:
         return None
@@ -70,14 +70,14 @@ async def search_face(
     threshold: float = 0.7
 ):
     """
-    上傳群體照，搵出 Database 入面 Match 嘅人
+    Upload a group photo and find matching people in the database.
     
     Args:
-        file: 群體照圖片
-        threshold: Similarity 門檻（Default 0.7）
+        file: Uploaded group-photo image.
+        threshold: Similarity threshold (default: 0.7).
     """
     try:
-        # 讀取上傳嘅圖
+        # Read the uploaded image.
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
         
@@ -93,7 +93,7 @@ async def search_face(
                 "matches": []
             }
         
-        # 對每張 Query Face 搵最佳 Match
+        # Find the best match for each query face.
         matches = []
         for i, query_emb in enumerate(query_embeddings):
             similarities = torch.cosine_similarity(
@@ -124,7 +124,7 @@ async def search_face(
 
 @app.get("/faces")
 def list_faces():
-    """列出所有 Index 咗嘅人臉"""
+    """List all indexed faces."""
     return {
         "total_faces": len(db_embeddings),
         "unique_images": len(set(db_paths)),

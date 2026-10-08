@@ -10,7 +10,7 @@ dist/
 venv/
 env/
 
-# Model Files（太大，唔上傳）
+# Model files (too large to commit)
 *.pt
 *.pth
 *.bin
@@ -20,10 +20,10 @@ env/
 .cache/
 huggingface/
 
-# 個人設定
+# Personal settings
 .vscode/
 .idea/
 *.log
 
-# 環境變數
+# Environment variables
 .env

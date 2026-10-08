@@ -3,7 +3,7 @@ from PIL import Image
 import torch
 import os
 
-# ============ 1. 載入 Models ============
+# ============ 1. Load models ============
 print("📥 Loading Face Detection & Recognition models...")
 mtcnn = MTCNN(keep_all=True, device="cpu")
 face_model = InceptionResnetV1(pretrained="vggface2").eval()
@@ -11,7 +11,7 @@ print("✅ Models loaded\n")
 
 
 def embed_faces(image_path):
-    """Detect + Crop + Embed 所有人臉"""
+    """Detect, crop, and embed all faces."""
     image = Image.open(image_path).convert("RGB")
     faces = mtcnn(image)
     
@@ -25,7 +25,7 @@ def embed_faces(image_path):
     return embeddings
 
 
-# ============ 2. 載入 Database ============
+# ============ 2. Load the database ============
 if not os.path.exists("face_embeddings.pt"):
     print("❌ face_embeddings.pt not found. Please run build_face_index.py first.")
     exit(1)
@@ -41,17 +41,17 @@ print(f"📦 Loaded {len(db_embeddings)} face embeddings from {len(set(db_paths)
 # ============ 3. Face Search ============
 def search_group_photo(group_photo_path: str, threshold: float = 0.7):
     """
-    用群體照搵出邊個喺 Database 入面
+    Identify the people in a group photo who appear in the database.
     
     Args:
-        group_photo_path: 群體照嘅 Path
-        threshold: Similarity 門檻（FaceNet 通常 0.7 以上係同一個人）
+        group_photo_path: Path to the group photo.
+        threshold: Similarity threshold (FaceNet typically treats values of 0.7 or higher as the same person).
     """
     print(f"🖼️ Query Group Photo: {group_photo_path}")
     print(f"   Threshold: {threshold}")
     print(f"{'='*70}")
     
-    # Step 1: Detect 群體照入面所有人臉
+    # Step 1: Detect all faces in the group photo.
     query_embeddings = embed_faces(group_photo_path)
     
     if query_embeddings is None:
@@ -60,14 +60,14 @@ def search_group_photo(group_photo_path: str, threshold: float = 0.7):
     
     print(f"   🔍 Detected {len(query_embeddings)} face(s) in group photo\n")
     
-    # Step 2: 對每張 Query Face，搵 Database 入面最相似嘅
+    # Step 2: Find the most similar database face for each query face.
     matches = []
     
     for i, query_emb in enumerate(query_embeddings):
-        # 計 Similarity 同所有 DB Faces
+        # Calculate similarity against all database faces.
         similarities = torch.cosine_similarity(query_emb.unsqueeze(0), db_embeddings)
         
-        # 搵最高 Similarity
+        # Find the highest similarity score.
         best_idx = torch.argmax(similarities).item()
         best_sim = similarities[best_idx].item()
         best_path = db_paths[best_idx]
@@ -87,7 +87,7 @@ def search_group_photo(group_photo_path: str, threshold: float = 0.7):
             print(f"      ❌ No match (Similarity < {threshold})")
         print()
     
-    # Step 3: 總結
+    # Step 3: Summarize the results.
     print(f"{'='*70}")
     if matches:
         print(f"🎯 Found {len(matches)} match(es):")

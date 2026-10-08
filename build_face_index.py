@@ -3,20 +3,20 @@ from PIL import Image
 import torch
 import os
 
-# ============ 1. 載入 Models ============
+# ============ 1. Load models ============
 print("📥 Loading Face Detection & Recognition models...")
-mtcnn = MTCNN(keep_all=True, device="cpu")  # keep_all=True 支援多人
+mtcnn = MTCNN(keep_all=True, device="cpu")  # ``keep_all=True`` supports multiple faces.
 face_model = InceptionResnetV1(pretrained="vggface2").eval()
 print("✅ Models loaded\n")
 
 
 def embed_faces(image_path):
-    """Detect + Crop + Embed 所有人臉"""
+    """Detect, crop, and embed all faces."""
     image = Image.open(image_path).convert("RGB")
-    faces = mtcnn(image)  # 回傳 Tensor (N, 3, 160, 160)
+    faces = mtcnn(image)  # Returns a tensor with shape ``(N, 3, 160, 160)``.
     
     if faces is None:
-        return None  # 冇 Detect 到臉
+        return None  # No faces were detected.
     
     with torch.no_grad():
         embeddings = face_model(faces)  # (N, 512)
@@ -55,10 +55,10 @@ if not all_embeddings:
     print("❌ No faces found. Exiting.")
     exit(1)
 
-# Stack 所有 Embeddings
+# Stack all embeddings.
 all_embeddings = torch.stack(all_embeddings)
 
-# ============ 3. 儲存 ============
+# ============ 3. Save ============
 data = {
     "embeddings": all_embeddings,
     "paths": all_paths,
